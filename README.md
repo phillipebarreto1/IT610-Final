@@ -14,5 +14,10 @@ cd fav-games
 docker compose up --build
 ```
 ### Now you can go to localhost:{INSERT YOUR FRONTEND PORT HERE} to test the front end. Again, this is an EXTREMELY basic webpage with basic functionality to test a database connection. You can test around with the other ports to check those connections as well, for example using the Prometheus port will lead you to a page where you can check mysql metrics 
-### My aim in this final project was to orchestrate 4 services: a web app, a database, Prometheus monitoring, and a mysql exporter for prometheus. This is something I want to do in the future as my goal is either in cloud engineering or DevOps. I want to add CI/CD as well but my work was too simple and I am happy to ahve gotten multiple services up and working together
-### I moved away from my terraria server idea because it was also something I was not too interested in continuing
+### My aim in this final project was to orchestrate 4 services: a web app, a database, Prometheus monitoring, and a mysql exporter for prometheus. This is something I want to do in the future as my goal is either in cloud engineering or DevOps. I want to add CI/CD as well but my work was too simple and I am happy to have gotten multiple services up and working together
+### I moved away from my terraria server idea beacause it was something I was not too interested in continuing it further
+### If I were to continue this project, I would flesh out the frontend to add more functionality along with implementing Grafana and github actions to automate some testing. I know I could do that with adding to the docker file and enjoyed learning from this
+### To turn off the container and remove it (this will also remove any data in the database) use the command:
+```
+docker compose down -v
+```
