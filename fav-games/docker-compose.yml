@@ -1,0 +1,71 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    volumes:
+      - "./src:/var/www/html"
+      - "/var/www/html/vendor/"
+    ports:
+      - "${WEB_PORT}:80"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+    depends_on:
+      - db
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: "false"
+    ports:
+      - "${DB_PORT}:3306"
+    expose:
+      - "3306"
+    volumes:
+      - my-db:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus:ro
+      - promdata:/prometheus
+    depends_on:
+      - mysqld-exporter
+  mysqld-exporter:
+    image: prom/mysqld-exporter:latest
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${MYSQL_EXPORTER_PORT}:9104"
+    volumes:
+      - ./mysql-exporter.cnf:/etc/mysql-exporter.cnf:ro
+    command:
+      - --config.my-cnf=/etc/mysql-exporter.cnf
+    environment:
+      DATA_SOURCE_NAME: "exporter:exporterpass@(db:3306)/"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  my-db:
+  dbdata:
+  promdata:
